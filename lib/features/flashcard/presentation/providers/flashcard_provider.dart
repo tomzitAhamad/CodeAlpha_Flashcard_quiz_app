@@ -16,13 +16,24 @@ class FlashcardProvider extends ChangeNotifier {
 
   int get currentIndex => _currentIndex;
 
-  // Load flashcards
-  void loadFlashcards() {
-    _flashcards = repository.getFlashcards();
+  set currentIndex(int value) {
+    _currentIndex = value;
     notifyListeners();
   }
 
-  // Add flashcard
+  /// Load Flashcards
+  void loadFlashcards() {
+    _flashcards = repository.getFlashcards();
+
+    // Prevent invalid index
+    if (_currentIndex >= _flashcards.length) {
+      _currentIndex = _flashcards.isEmpty ? 0 : _flashcards.length - 1;
+    }
+
+    notifyListeners();
+  }
+
+  /// Add Flashcard
   Future<void> addFlashcard(String question, String answer) async {
     final flashcard = FlashcardEntity(question: question, answer: answer);
 
@@ -31,14 +42,21 @@ class FlashcardProvider extends ChangeNotifier {
     loadFlashcards();
   }
 
-  // Delete flashcard
+  /// Delete Flashcard
   Future<void> deleteFlashcard(int index) async {
     await repository.deleteFlashcard(index);
 
     loadFlashcards();
+
+    // Extra safety
+    if (_currentIndex >= _flashcards.length) {
+      _currentIndex = _flashcards.isEmpty ? 0 : _flashcards.length - 1;
+    }
+
+    notifyListeners();
   }
 
-  // Update flashcard
+  /// Update Flashcard
   Future<void> updateFlashcard(
     int index,
     String question,
@@ -51,18 +69,20 @@ class FlashcardProvider extends ChangeNotifier {
     loadFlashcards();
   }
 
-  // Next card
+  /// Next Card
   void nextCard() {
     if (_currentIndex < _flashcards.length - 1) {
       _currentIndex++;
+
       notifyListeners();
     }
   }
 
-  // Previous card
+  /// Previous Card
   void previousCard() {
     if (_currentIndex > 0) {
       _currentIndex--;
+
       notifyListeners();
     }
   }
