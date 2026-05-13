@@ -1,3 +1,4 @@
+import 'package:flashcard_quiz_app/core/theme/app_theme.dart';
 import 'package:flashcard_quiz_app/features/flashcard/data/datasource/flashcard_local_datasource.dart';
 import 'package:flashcard_quiz_app/features/flashcard/domain/repositories/flashcard_repository_impl.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
 
         title: 'Flashcard Quiz App',
 
-        theme: ThemeData(primarySwatch: Colors.blue),
+        theme: AppTheme.lightTheme,
 
         home: const FlashcardPage(),
       ),
