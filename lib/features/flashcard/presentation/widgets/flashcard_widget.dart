@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_flip_card/flutter_flip_card.dart';
 
-class FlashcardWidget extends StatelessWidget {
+class FlashcardWidget extends StatefulWidget {
   final String question;
   final String answer;
 
@@ -12,9 +12,21 @@ class FlashcardWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final controller = FlipCardController();
+  State<FlashcardWidget> createState() => _FlashcardWidgetState();
+}
 
+class _FlashcardWidgetState extends State<FlashcardWidget> {
+  late FlipCardController controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = FlipCardController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
         SizedBox(
@@ -80,7 +92,7 @@ class FlashcardWidget extends StatelessWidget {
           const SizedBox(height: 20),
 
           Text(
-            question,
+            widget.question,
 
             style: const TextStyle(
               fontSize: 24,
@@ -127,7 +139,7 @@ class FlashcardWidget extends StatelessWidget {
           const SizedBox(height: 20),
 
           Text(
-            answer,
+            widget.answer,
 
             style: const TextStyle(
               fontSize: 22,
