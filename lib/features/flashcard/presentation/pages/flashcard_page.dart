@@ -1,7 +1,9 @@
+import 'package:flashcard_quiz_app/features/flashcard/presentation/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/flashcard_provider.dart';
+import '../widgets/flashcard_widget.dart';
 
 class FlashcardPage extends StatefulWidget {
   const FlashcardPage({super.key});
@@ -11,8 +13,6 @@ class FlashcardPage extends StatefulWidget {
 }
 
 class _FlashcardPageState extends State<FlashcardPage> {
-  bool showAnswer = false;
-
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<FlashcardProvider>(context);
@@ -31,7 +31,12 @@ class _FlashcardPageState extends State<FlashcardPage> {
       ),
 
       body: flashcards.isEmpty
-          ? const Center(child: Text('No Flashcards Yet'))
+          ? const Center(
+              child: Text(
+                'No Flashcards Yet',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              ),
+            )
           : Padding(
               padding: const EdgeInsets.all(20),
 
@@ -39,86 +44,84 @@ class _FlashcardPageState extends State<FlashcardPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
 
                 children: [
-                  // Flashcard
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
+                  /// Flashcard Widget
+                  FlashcardWidget(
+                    question: flashcards[provider.currentIndex].question,
 
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade100,
-
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-
-                    child: Column(
-                      children: [
-                        Text(
-                          flashcards[provider.currentIndex].question,
-
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-
-                          textAlign: TextAlign.center,
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        if (showAnswer)
-                          Text(
-                            flashcards[provider.currentIndex].answer,
-
-                            style: const TextStyle(fontSize: 18),
-
-                            textAlign: TextAlign.center,
-                          ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        showAnswer = !showAnswer;
-                      });
-                    },
-
-                    child: Text(showAnswer ? 'Hide Answer' : 'Show Answer'),
+                    answer: flashcards[provider.currentIndex].answer,
                   ),
 
                   const SizedBox(height: 30),
 
+                  /// Navigation Buttons
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          provider.previousCard();
+                      Expanded(
+                        child: CustomButton(
+                          text: 'Previous',
 
-                          setState(() {
-                            showAnswer = false;
-                          });
-                        },
+                          icon: Icons.arrow_back,
 
-                        child: const Text('Previous'),
+                          onPressed: () {
+                            provider.previousCard();
+                          },
+                        ),
                       ),
 
-                      ElevatedButton(
-                        onPressed: () {
-                          provider.nextCard();
+                      const SizedBox(width: 15),
 
-                          setState(() {
-                            showAnswer = false;
-                          });
-                        },
+                      Expanded(
+                        child: CustomButton(
+                          text: 'Next',
 
-                        child: const Text('Next'),
+                          icon: Icons.arrow_forward,
+
+                          onPressed: () {
+                            provider.nextCard();
+                          },
+                        ),
                       ),
                     ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// Delete Button
+                  CustomButton(
+                    text: 'Delete Flashcard',
+
+                    icon: Icons.delete,
+
+                    backgroundColor: Colors.red,
+
+                    onPressed: () async {
+                      await provider.deleteFlashcard(provider.currentIndex);
+                    },
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  /// Edit Button
+                  CustomButton(
+                    text: 'Edit Flashcard',
+
+                    icon: Icons.edit,
+
+                    backgroundColor: Colors.orange,
+
+                    onPressed: () {
+                      final currentCard = flashcards[provider.currentIndex];
+
+                      _showEditFlashcardDialog(
+                        context,
+
+                        provider.currentIndex,
+
+                        currentCard.question,
+
+                        currentCard.answer,
+                      );
+                    },
                   ),
                 ],
               ),
@@ -126,7 +129,7 @@ class _FlashcardPageState extends State<FlashcardPage> {
     );
   }
 
-  // Add flashcard dialog
+  /// Add Flashcard Dialog
   void _showAddFlashcardDialog(BuildContext context) {
     final questionController = TextEditingController();
 
@@ -149,7 +152,7 @@ class _FlashcardPageState extends State<FlashcardPage> {
                 decoration: const InputDecoration(labelText: 'Question'),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
 
               TextField(
                 controller: answerController,
@@ -185,6 +188,77 @@ class _FlashcardPageState extends State<FlashcardPage> {
               },
 
               child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Edit Flashcard Dialog
+  void _showEditFlashcardDialog(
+    BuildContext context,
+    int index,
+    String currentQuestion,
+    String currentAnswer,
+  ) {
+    final questionController = TextEditingController(text: currentQuestion);
+
+    final answerController = TextEditingController(text: currentAnswer);
+
+    showDialog(
+      context: context,
+
+      builder: (_) {
+        return AlertDialog(
+          title: const Text('Edit Flashcard'),
+
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+
+            children: [
+              TextField(
+                controller: questionController,
+
+                decoration: const InputDecoration(labelText: 'Question'),
+              ),
+
+              const SizedBox(height: 12),
+
+              TextField(
+                controller: answerController,
+
+                decoration: const InputDecoration(labelText: 'Answer'),
+              ),
+            ],
+          ),
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+
+              child: const Text('Cancel'),
+            ),
+
+            ElevatedButton(
+              onPressed: () async {
+                final updatedQuestion = questionController.text.trim();
+
+                final updatedAnswer = answerController.text.trim();
+
+                if (updatedQuestion.isNotEmpty && updatedAnswer.isNotEmpty) {
+                  await Provider.of<FlashcardProvider>(
+                    context,
+                    listen: false,
+                  ).updateFlashcard(index, updatedQuestion, updatedAnswer);
+
+                  Navigator.pop(context);
+                }
+              },
+
+              child: const Text('Update'),
             ),
           ],
         );
