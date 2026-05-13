@@ -5,6 +5,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'features/flashcard/data/models/flashcard_model.dart';
+
+import 'features/flashcard/presentation/pages/flashcard_page.dart';
 import 'features/flashcard/presentation/providers/flashcard_provider.dart';
 
 void main() async {
@@ -33,13 +35,12 @@ class MyApp extends StatelessWidget {
 
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+
         title: 'Flashcard Quiz App',
 
-        home: Scaffold(
-          appBar: AppBar(title: const Text('Flashcard App')),
+        theme: ThemeData(primarySwatch: Colors.blue),
 
-          body: const Center(child: Text('Provider Connected Successfully')),
-        ),
+        home: const FlashcardPage(),
       ),
     );
   }
